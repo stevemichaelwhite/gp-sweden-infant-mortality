@@ -5,6 +5,7 @@
 library(dplyr)
 library(cmdstanr) #instead of rstan
 library(bayesplot)
+library(gridExtra)
 
 deaths <- readRDS("./data/deaths.rds")
 births <- readRDS("./data/births.rds")
@@ -34,11 +35,6 @@ data <- full_join(deaths_df, births_df, by=c("county","time")) %>%
 
 head(data)
 
-
-#-------------------------------------------------------------------------------
-# Simple prior
-#-------------------------------------------------------------------------------
-
 # model setup : data
 stan_data <- list(N   = nrow(data),
                   Nga = length(unique(data$time_code)),
@@ -48,15 +44,19 @@ stan_data <- list(N   = nrow(data),
                   ga  = data$time_code,
                   gc  = data$county_code)
 
+#-------------------------------------------------------------------------------
+# Simple prior
+#-------------------------------------------------------------------------------
+
 # model setup : compiling the Stan model
-stan_model <- cmdstan_model("./src/joane_stan_model_mlr_simple_hierarchical_prior.stan")
+stan_model1 <- cmdstan_model("./src/joane_stan_model_mlr_simple_hierarchical_prior.stan")
 
 
 # run the model
 nchains <- 4
 options(mc.cores = nchains)
 
-fit1 <- stan_model$sample(data = stan_data,
+fit1 <- stan_model1$sample(data = stan_data,
                           seed = 8534,
                           chains = nchains,
                           parallel_chains = nchains,
@@ -80,30 +80,105 @@ mcmc_trace(draws1, pars=c("mu"))
 mcmc_trace(draws1, pars=c("offset_c_raw[3]"))
 
 # plot offsets
-mcmc_intervals(draws1, 
-               pars = paste0("offset_a[",
-                             1:length(unique(data$time_code)),
-                             "]"))
+offset_a_intervals_plot1 <- mcmc_intervals(draws1, 
+                                           pars = paste0("offset_a[",
+                                                         1:length(unique(data$time_code)),
+                                                         "]"))
 
 mcmc_intervals(draws1, 
                pars = paste0("offset_c[",
                              1:length(unique(data$county_code)),
                              "]"))
 #plot hyperparameters sigma
-mcmc_intervals(draws1, 
-               pars = c("sigma_a", "sigma_c"))
+sigma_area_plot1 <- mcmc_areas(draws1, 
+                                   pars = c("sigma_a", "sigma_c"))
 
 #Look at predictions
 yrep1 <- fit1$draws(variable = "y_pred", format = "draws_matrix")
 
 ppc_stat_grouped(y=data$deaths,yrep=yrep1,group=data$county)
-ppc_stat_grouped(y=data$deaths,yrep=yrep1,group=data$time)
+pred_grouped_a1 <- ppc_stat_grouped(y=data$deaths,yrep=yrep1,group=data$time)
 ppc_intervals_grouped(y=data$deaths,yrep=yrep1,group=data$county)
 
 # PSIS-LOO
-fit1$loo()
+loo1 <- fit1$loo()
 
 
 #-------------------------------------------------------------------------------
 # Structured prior
 #-------------------------------------------------------------------------------
+
+# model setup : compiling the Stan model
+stan_model <- cmdstan_model("./src/joane_stan_model_mlr_AR1_prior.stan")
+
+
+# run the model
+nchains <- 4
+options(mc.cores = nchains)
+
+fit2 <- stan_model$sample(data = stan_data,
+                          seed = 8534,
+                          chains = nchains,
+                          parallel_chains = nchains,
+                          iter_warmup = 1000,
+                          iter_sampling = 1000,
+                          refresh = 100)
+options(mc.cores = 1)
+
+
+# fit summary
+fit_summary2 <- fit2$summary(variables=c("mu","offset_a", "offset_c",
+                                         "sigma_a", "sigma_c", "rho"))
+# chain diagnostics
+par(mfrow = c(1,2))
+hist(fit_summary2$rhat, col="grey", main = "Rhat")
+hist(fit_summary2$ess_bulk, col="grey", main = "ESS")
+
+fit_summary2[which(fit_summary2$ess_bulk < 1000),]
+fit_summary2[which(fit_summary2$rhat > 1.015),]
+
+draws2 <- fit2$draws()
+mcmc_trace(draws2, pars=c("sigma_a"))
+mcmc_trace(draws2, pars=c("offset_c_raw[3]"))
+
+# plot offsets
+offset_a_intervals_plot2 <- mcmc_intervals(draws2,
+                                           pars = paste0("offset_a[",
+                                                         1:length(unique(data$time_code)),
+                                                         "]"))
+
+mcmc_intervals(draws2, 
+               pars = paste0("offset_c[",
+                             1:length(unique(data$county_code)),
+                             "]"))
+# plot rho
+mcmc_areas(draws2, 
+           pars = "rho")
+
+# plot hyperparameters sigma
+sigma_area_plot2 <- mcmc_areas(draws2, 
+                               pars = c("sigma_a", "sigma_c"))
+
+# Look at predictions
+yrep2 <- fit2$draws(variable = "y_pred", format = "draws_matrix")
+
+ppc_stat_grouped(y=data$deaths,yrep=yrep2,group=data$county)
+pred_grouped_a2 <- ppc_stat_grouped(y=data$deaths,yrep=yrep2,group=data$time)
+ppc_intervals_grouped(y=data$deaths,yrep=yrep2,group=data$county)
+
+# PSIS-LOO
+loo2 <- fit2$loo()
+
+
+#-------------------------------------------------------------------------------
+# Compare the 2 models
+#-------------------------------------------------------------------------------
+
+# year offset estimates
+grid.arrange(offset_a_intervals_plot1, offset_a_intervals_plot2, ncol=2)
+
+#predictions
+grid.arrange(pred_grouped_a1, pred_grouped_a2, ncol=2)
+grid.arrange(pred_grouped_a1, pred_grouped_a2, ncol=2)
+
+grid.arrange(sigma_area_plot1, sigma_area_plot2, ncol=2)
