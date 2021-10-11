@@ -23,28 +23,44 @@ parameters {
 transformed parameters {
   vector[Nga] offset_a;                 // year effects
   vector[Ngc] offset_c;                 // county effects
-  
-  offset_a = sigma_a * offset_a_raw;
-  offset_c = sigma_c * offset_c_raw;
-}
-
-
-model {
   vector[N] mu_vec;
   vector[N] logit_theta;
+  vector[N] theta;
+  
+  // offsets
+  offset_a = sigma_a * offset_a_raw;
+  offset_c = sigma_c * offset_c_raw;
   
   // logistic regression
   mu_vec = rep_vector(mu, N);
   logit_theta = mu_vec + offset_a[ga] + offset_c[gc];
-  
+  theta = inv_logit(logit_theta);
+}
+
+
+model {
   // binomial data generation
-  target += binomial_logit_lpmf(y | n, logit_theta);
+  target += binomial_lpmf(y | n, theta);
   
   // priors
-  mu ~ normal(-5,5);                   // 20th century mortality is low
-  sigma_a ~ cauchy(0,2.5);
-  sigma_c ~ cauchy(0,2.5);
+  mu ~ normal(0,10);                   // 20th century mortality is low
+  sigma_a ~ normal(0,2.5);
+  sigma_c ~ normal(0,2.5);
   offset_a_raw ~ normal(0,1);
   offset_c_raw ~ normal(0,1);
+}
+
+generated quantities {
+  real y_pred[N];
+  vector[N] log_lik;
+  
+  // predictions on observed data
+  y_pred = binomial_rng(n, theta);
+  
+  // log likelihood for LOO calculations 
+  for (i in 1:N) {
+    log_lik[i] = binomial_lpmf(y[i] | n[i], theta[i]);
+  }
+  
 }
 
