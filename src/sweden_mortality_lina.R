@@ -67,7 +67,7 @@ fit1<-add_criterion(fit1,"loo")
 
 fit2 <-
   brms::brm(
-    (infant_mortality_rate+1)~ t + county,
+    infant_mortality_rate~ t + county,
     data = infant_dataset,
     family = gamma(link=log),
     warmup = 500, 
