@@ -113,7 +113,7 @@ cat("\n")
 ```
 
 ## Bibliography
-
+[Intro to gaussian processes in Stan: Finding exoplanets](https://www.youtube.com/watch?v=132s2B-mzBg)  
 [A Visual Exploration of Gaussian Processes](https://distill.pub/2019/visual-exploration-gaussian-processes/)  
 [Robust Gaussian Processes in Stan](https://betanalpha.github.io/assets/case_studies/gp_part1/part1.html)  
 
