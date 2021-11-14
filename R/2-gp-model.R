@@ -47,15 +47,17 @@ pred_fit <- stan(file='stan/method1.stan', data =pred_data, iter=2000, chains=1)
 pred_params <- extract(pred_fit)
 pairs(pred_fit)
 
-yr <- c(-3,3)
-xr <- c(head(x_predict,1), tail(x_predict,1))
-plot(xr, yr, ty='n')
+jpeg("plots/stockholm_gp_pred.jpg", width = 500, height = 500)
+mort_normal <- c(-3,3)
+time_year <- c(head(x_predict,1), tail(x_predict,1))
+plot(time_year, mort_normal, ty='n')
 for( i in 1:100){
   lines(x_predict, pred_params$f[i,(N_obs+1):(N_obs+N_predict)], col=rgb(0,0,0,0.1))
 }
 points(stockholm_ts$year, stockholm_ts$mort_rate_normal, pch=20, col='orange', cex=1)
 
 lines(x_predict, colMeans(pred_params$f[,(N_obs+1):(N_obs+N_predict)]),lwd=3)
+dev.off()
 
 # Un-normalised plot ------------------------------------------------------
 

@@ -62,15 +62,28 @@ Our aim is to estimate Swedish infant mortality rate across regions and time (10
 ```{r}
 
 cat('\n')
-cat("### Births  \n")
+cat("### Births-Deaths  \n")
 htmltools::tagList(res_plots$births %>% ggplotly())
-cat("\n")
-cat("### Deaths  \n")
 htmltools::tagList(res_plots$deaths %>% ggplotly())
 cat("\n")
 cat("### Mortality Rate  \n")
 htmltools::tagList(res_plots$mort_rate %>% ggplotly(height=1000))
 cat("\n")
+
+  
+```
+
+## {-}
+
+## GP Prediction Model  {.tabset .tabset-pills}  
+
+```{r}
+
+cat('\n')
+cat("### Stockholm - normalised  \n")
+cat("![graph](../plots/stockholm_gp_pred.jpg)")
+cat("\n")
+
 
   
 ```
