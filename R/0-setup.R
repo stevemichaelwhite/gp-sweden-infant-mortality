@@ -1,6 +1,3 @@
-devtools::install_github("johnrbryant/bdefdata")
-install.packages("fable")
-
-# save plots and tables for rmarkdown
-res_plots <- list()
-res_tables <- list()
+library(rstan)
+rstan_options(auto_write = TRUE)
+options(mc.cores = parallel::detectCores()/2)

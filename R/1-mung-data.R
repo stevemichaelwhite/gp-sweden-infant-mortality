@@ -1,4 +1,5 @@
-
+# devtools::install_github("johnrbryant/bdefdata")
+# install.packages("fable")
 
 library(tidyverse)
 library(magrittr)
@@ -7,6 +8,11 @@ library(ggplot)
 # library(fable)
 library(tsibble)
 library(feasts)
+
+# save plots and tables for rmarkdown
+res_plots <- list()
+res_tables <- list()
+
 
 mort_exp <-3
 
@@ -35,10 +41,18 @@ rm(birth_death_tb)
 # plots
 res_plots[["births"]] <- birth_death_ts %>% autoplot(births)
 res_plots[["deaths"]] <- birth_death_ts %>% autoplot(deaths)
-res_plots[["mort_rate"]] <- birth_death_ts %>% autoplot(mort_rate)
 
+birth_death_ts %>% as_tibble() %>% group_by(county) %>%
+  summarise(sum_births = sum(births))  %>% arrange(desc(sum_births) ) 
 
+graph_region_dat <- birth_death_ts  %>% 
+  group_by(county) %>% 
+  mutate(sum_births = sum(births)) %>% ungroup() %>%
+  mutate(qlabel=sprintf("%s (tot_births=%s)",county, round(sum_births,2))) %>% 
+  mutate(qlabel = fct_reorder(as.factor(qlabel), -sum_births))
 
+res_plots[["mort_rate"]] <- graph_region_dat %>% ggplot(aes(x=year, y=mort_rate)) + geom_line() + geom_point() +
+  facet_wrap(facets = vars(qlabel),scales = "free", ncol = 3)
 
 # Save Data ---------------------------------------------------------------
 saveRDS(birth_death_ts, "data/birth_death_ts.rds")

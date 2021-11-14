@@ -69,7 +69,7 @@ cat("### Deaths  \n")
 htmltools::tagList(res_plots$deaths %>% ggplotly())
 cat("\n")
 cat("### Mortality Rate  \n")
-htmltools::tagList(res_plots$mort_rate %>% ggplotly())
+htmltools::tagList(res_plots$mort_rate %>% ggplotly(height=1000))
 cat("\n")
 
   
@@ -99,4 +99,8 @@ cat("\n")
 
 ```
 
+## Bibliography
+
+[A Visual Exploration of Gaussian Processes](https://distill.pub/2019/visual-exploration-gaussian-processes/)  
+[Robust Gaussian Processes in Stan](https://betanalpha.github.io/assets/case_studies/gp_part1/part1.html)  
 
