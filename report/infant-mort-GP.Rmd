@@ -1,0 +1,102 @@
+---
+title: "Infant Mortality Rates in Sweden - Gaussian Process Model"
+author: "Steve White"
+date: "11/14/2021"
+output: 
+  html_document:
+    toc: true
+    toc_float:
+      collapsed: true
+      smooth_scroll: true
+    toc_depth: 2
+---
+
+
+<style type="text/css">
+  p,ul,li{
+  font-size: 12pt;
+}
+</style>
+
+```{r setup, include=FALSE}
+library(htmltools)
+library(plotly)
+library(dplyr)
+library(magrittr)
+library(purrr)
+
+
+knitr::opts_chunk$set(echo = FALSE, message=FALSE, results = "asis")
+
+res_plots <- readRDS("../data/res_plots.rds")
+birth_death_ts <- readRDS("../data/birth_death_ts.rds")
+
+```
+
+## Overview  
+
+Our aim is to estimate Swedish infant mortality rate across regions and time (10-year time period). Modelling allows us to ask questions such as:  
+1. “Are regions struggling more than others to keep babies alive?  
+2. “Is infant survival improving over time?”.  
+
+
+[Code Available on GitLab](https://gitlabstats-prd/StatsMethods/bayesian-cop/projects/sweden_infant_mortality)  
+
+### Scenario Definitions  
+
+
+
+
+
+```{r}
+# readRDS("../data/rmc_tval.rds")%>%
+#   knitr::kable(row.names = FALSE, format = "markdown", caption = "t values for AO2021.3", digits = 2)
+
+```
+ 
+ 
+
+
+## Observed Data  {.tabset .tabset-pills}  
+
+```{r}
+
+cat('\n')
+cat("### Births  \n")
+htmltools::tagList(res_plots$births %>% ggplotly())
+cat("\n")
+cat("### Deaths  \n")
+htmltools::tagList(res_plots$deaths %>% ggplotly())
+cat("\n")
+cat("### Mortality Rate  \n")
+htmltools::tagList(res_plots$mort_rate %>% ggplotly())
+cat("\n")
+
+  
+```
+
+## {-}
+
+```{r}
+# for(i in names(plot_res$default_prd)) {
+#   cat(sprintf("## %s  {.tabset .tabset-pills}   \n", i))
+# 
+#   cat('\n')
+#   cat("### Actual-D11-D12  \n")
+#   print(htmltools::tagList(plot_res$default_prd[[i]]))
+#   cat("\n")
+#   cat("### Compare D11  \n")
+#   print(htmltools::tagList(plot_res$compare_d11[[i]]))
+#   cat("\n")
+#   cat("### Compare D11 Movement  \n")
+#   print(htmltools::tagList(plot_res$compare_mvmt[[i]]))
+#   cat("\n")
+# 
+# 
+#   cat("## {-}  \n")
+# 
+# }
+
+```
+
+
