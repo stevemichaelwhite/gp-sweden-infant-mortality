@@ -1,7 +1,0 @@
-'primary and secondary education less than 9 years (ISCED97 1)'  =      "A",
-'primary and secondary education 9-10 years (ISCED97 2)'         =      "B",
-'upper secondary education, 2 years or less (ISCED97 3C)'        =      "C",
-'upper secondary education 3 years (ISCED97 3A)'                 =      "D",
-'post-secondary education, less than 3 years (ISCED97 4+5B)'     =      "E",
-'post-secondary education 3 years or more (ISCED97 5A)'          =      "F",
-'post-graduate education (ISCED97 6)'                            =      "G")

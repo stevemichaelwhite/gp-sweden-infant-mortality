@@ -4,4 +4,5 @@
 .Ruserdata
 personal_notes.txt
 data/
+stan/*.rds
 *.html
