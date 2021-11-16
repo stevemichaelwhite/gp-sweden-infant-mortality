@@ -8,10 +8,6 @@ f_100_trans %<>% mutate(year = as.numeric(year)
                           unique(stockholm_ts$mean_mort)
 )
 
-# f_100_trans <- f_100_trans %>% group_by(year) %>% mutate(estimate = mean(mort_rate))
-# everything up to year becomes a function parameterised by: region, # iter, chains
-# remove the 100 subset
-# repeat for each region
 
 # Un-normalised plot ------------------------------------------------------
 # show with original/untransformed data

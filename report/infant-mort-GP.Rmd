@@ -82,6 +82,9 @@ cat("\n")
 cat('\n')
 cat("### Stockholm (100 it)  \n")
 res_plots$stockholm_100
+cat("\n\n")
+cat("### Stockholm CI (1000 it)  \n")
+res_plots$stockholm_ci
 cat("\n")
 
 
