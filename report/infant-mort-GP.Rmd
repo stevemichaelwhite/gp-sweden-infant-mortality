@@ -80,8 +80,8 @@ cat("\n")
 ```{r}
 
 cat('\n')
-cat("### Stockholm - normalised  \n")
-cat("![graph](../plots/stockholm_gp_pred.jpg)")
+cat("### Stockholm (100 it)  \n")
+res_plots$stockholm_100
 cat("\n")
 
 

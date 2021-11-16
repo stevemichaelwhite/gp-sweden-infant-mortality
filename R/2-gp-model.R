@@ -3,15 +3,11 @@ source("R/0-setup.R")
 #Normalise data
 birth_death_ts <- readRDS("data/birth_death_ts.rds")
 
-birth_death_ts %<>% group_by(county) %>% 
-  mutate(mort_rate_normal = (mort_rate - mean(mort_rate))/sd(mort_rate))
-
 
 # Fit A GP model - RBF KERNEL ---------------------------------------------
 
 #Start with just Stockholm
 stockholm_ts <- birth_death_ts %>% filter(county == "Stockholm")
-
 
 # Not conditioned on data -------------------------------------------------
 
@@ -45,26 +41,25 @@ pred_data <- list(N1=nrow(stockholm_ts)
 pred_fit <- stan(file='stan/method1.stan', data =pred_data, iter=2000, chains=1)
 
 pred_params <- extract(pred_fit)
-pairs(pred_fit)
 
-jpeg("plots/stockholm_gp_pred.jpg", width = 500, height = 500)
-mort_normal <- c(-3,3)
-time_year <- c(head(x_predict,1), tail(x_predict,1))
-plot(time_year, mort_normal, ty='n')
-for( i in 1:100){
-  lines(x_predict, pred_params$f[i,(N_obs+1):(N_obs+N_predict)], col=rgb(0,0,0,0.1))
-}
-points(stockholm_ts$year, stockholm_ts$mort_rate_normal, pch=20, col='orange', cex=1)
+f_100 <- pred_params$f[1:100,(N_obs+1):(N_obs+N_predict)]
+f_100 %<>% as_tibble() %>% rownames_to_column(var = "it")
+names(f_100)[2:length(f_100)] <- as.character(x_predict) 
 
-lines(x_predict, colMeans(pred_params$f[,(N_obs+1):(N_obs+N_predict)]),lwd=3)
-dev.off()
+f_100_trans <- f_100 %>% pivot_longer(-it,names_to = "year", values_to = "mort_rate")
+f_100_trans %<>% mutate(year = as.numeric(year)
+                        , mort_rate = (mort_rate * unique(stockholm_ts$sd_mort) ) + 
+                          unique(stockholm_ts$mean_mort)
+)
 
-# Un-normalised plot ------------------------------------------------------
-
-# Show how additional observations add constraint to fit----------------------
-
+# f_100_trans <- f_100_trans %>% group_by(year) %>% mutate(estimate = mean(mort_rate))
+# everything up to year becomes a function parameterised by: region, # iter, chains
+# remove the 100 subset
 
 
 # Next Steps --------------------------------------------------------------
-# Analytical from posterior?
+# Plot - Confidence interval with estimate for each reagion
+# Plot - estimate for all regions on one graph
+
+# 1 latent variable common to all regions
 

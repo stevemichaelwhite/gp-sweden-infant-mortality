@@ -38,6 +38,11 @@ birth_death_ts <- birth_death_tb %>% mutate(year = as.numeric(year)) %>%
   as_tsibble(key = county, index = year)
 rm(birth_death_tb)
 
+birth_death_ts %<>% group_by(county) %>% 
+  mutate(mean_mort = mean(mort_rate),
+         sd_mort = sd(mort_rate),
+         mort_rate_normal = (mort_rate - mean_mort)/sd_mort)
+
 # plots
 res_plots[["births"]] <- birth_death_ts %>% autoplot(births)
 res_plots[["deaths"]] <- birth_death_ts %>% autoplot(deaths)
