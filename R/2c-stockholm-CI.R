@@ -21,16 +21,16 @@ yconf <- sapply(1:N, function(x) quantile(params$f[,x], probs=c(0.003,0.05,0.32,
 
 # calc qunatiles over all iterations for ech time point
 
-f_ci <- f_res_trans %>% group_by(year) %>% summarise(CI_68 = quantile(mort_rate, probs = 68/100)
-                                                  , CI_32 = quantile(mort_rate, probs = 32/100)
-                                                  , CI_95 = quantile(mort_rate, probs = 95/100)
-                                                  , CI_05 = quantile(mort_rate, probs = 5/100)
+f_ci <- f_res_trans %>% group_by(year) %>% summarise(CI_84 = quantile(mort_rate, probs = 84/100)
+                                                  , CI_16 = quantile(mort_rate, probs = 16/100)
+                                                  , CI_97_5 = quantile(mort_rate, probs = 97.5/100)
+                                                  , CI_02_5 = quantile(mort_rate, probs = 2.5/100)
                                                   , estimate = unique(estimate))
   
 res_plots[["stockholm_ci"]] <- f_ci %>% ggplot(aes(x = year, y = estimate)) + geom_line() + 
-  geom_ribbon(aes(ymin = CI_32, ymax = CI_68, fill = "32%-68%"), alpha = .25) + 
-  geom_ribbon(aes(ymin = CI_05, ymax = CI_95, fill = "5%-95%"), alpha = .25) + 
-  scale_fill_manual(name = "", values = c("32%-68%" = "red", "5%-95%" = "blue")) +
+  geom_ribbon(aes(ymin = CI_16, ymax = CI_84, fill = "16%-84%"), alpha = .25) + 
+  geom_ribbon(aes(ymin = CI_02_5, ymax = CI_97_5, fill = "2.5%-97.5%"), alpha = .25) + 
+  scale_fill_manual(name = "", values = c("16%-84%" = "red", "2.5%-97.5%" = "blue")) +
   geom_point(data = stockholm_ts
              , aes(x = year, y = mort_rate), colour = "orange", size = 2) +
   ggtitle("Stockholm CI (1000 it)") + theme(legend.position="bottom")
